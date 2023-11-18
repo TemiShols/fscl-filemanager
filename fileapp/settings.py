@@ -26,16 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY='django-insecure-+cp9p6kiylf#b1v@**szdgqs(9t-_koo2y&0u@e!1%0o!47cnm'
+SECRET_KEY= os.getenv('SECRET_KEY')
 #   SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-CSRF_TRUSTED_ORIGINS = ['https://*.azurewebsites.net']
+CSRF_TRUSTED_ORIGINS = ['vercel.app']
 CORS_ALLOW_ALL_ORIGINS: True
 CORS_ORIGIN_ALLOW_ALL = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.vercel.app']
 
 # Application definition
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'authentication',
     'file',
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -166,6 +168,7 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -225,29 +228,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 
 LOGIN_URL = reverse_lazy('login')
-
-#   AWS_ACCESS_KEY_ID = '005fe9e0bbd9a5c0000000002'
-#   AWS_SECRET_ACCESS_KEY = 'K005cB6Ni4WCm/d+TUUZkgmrDfZkMfM'
-#   AWS_PRIVATE_BUCKET_NAME = 'fscl-portal-private'
-#   AWS_STORAGE_BUCKET_NAME = 'fscl-portal'
-#   AWS_QUERYSTRING_AUTH = False
-#   _AWS_EXPIRY = 60 * 60 * 24 * 7
-#   AWS_S3_OBJECT_PARAMETERS = {"CacheControl": f"max-age=86400", }
-#   AWS_S3_REGION_NAME = 'us-east-005'
-#   AWS_S3_ENDPOINT = f's3.{AWS_S3_REGION_NAME}.backblazeb2.com'
-#   AWS_S3_ENDPOINT_URL = f'https://{AWS_S3_ENDPOINT}'
-
-#   AWS_LOCATION = 'static'
-#   STATICFILES_STORAGE = 'fileapp.storage_backends.StaticStorage'
-#   STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT}/"
-#   DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
-#   STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-#   AWS_QUERYSTRING_AUTH = False
-# DO NOT change these unless you know what you're doing.
-
-#   AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", default=None)
-#   aws_s3_domain = AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.backblaze.com"
 
 
 sentry_sdk.init(
