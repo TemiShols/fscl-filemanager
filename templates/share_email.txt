@@ -1,0 +1,12 @@
+Dear Recipient,
+
+A file has been shared with you via FSCL Portal. You can download the file using the link below:
+
+File Name: {{ doc.name }}
+Download Link: {{ doc.file.url }}
+
+{{ doc.user.get_full_name }}
+{{ doc.user.company_name }}
+
+Best Regards,
+FSCL Postmaster

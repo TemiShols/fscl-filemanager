@@ -1,17 +1,21 @@
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseBadRequest
-from django.core.files.storage import default_storage
-from django.db.models import Q
+from file.utils import summarize_doc
 from django.http import HttpResponse
 from django.http import JsonResponse
 from .models import Document
-from django.core.exceptions import PermissionDenied
-import os
+import os, json
+from .forms import DocumentForm
 from django.contrib import messages
 from authentication.models import CustomUser
-from .tasks import share_file_task, file_share, new_share, share, share_brevo, share_brevo2
+from django.core.cache import cache
+from .tasks import send_simple_download_message, send_simple_share_message
+from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
 
 
+@login_required()
 def upload_file(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('file')
@@ -27,6 +31,7 @@ def upload_file(request):
     return render(request, 'files.html')
 
 
+@login_required()
 def list_files(request):
     files = Document.objects.filter(user=request.user.id)
     context = {
@@ -42,6 +47,7 @@ def list_files(request):
     #   return render(request, 'my_files.html', {'files': files})
 
 
+@login_required()
 def filter_documents(request):
     try:
         company_name = request.POST['company']
@@ -57,67 +63,88 @@ def filter_documents(request):
     return render(request, 'my_files.html', context)
 
 
+@login_required()
 def download_file(request, pk):
+    receiver = CustomUser.objects.get(pk=request.user.pk)
     doc = Document.objects.get(pk=pk)
-    file_content = default_storage.open(doc.name)
-    response = HttpResponse(file_content, content_type='application/octet-stream')
+    #   file_content = default_storage.open(doc.name)
+    context_data = {
+        'doc_name': doc.name,
+        'sender_name': doc.user.get_full_name(),
+    }
+    context_json = json.dumps(context_data, cls=DjangoJSONEncoder)
+    send_simple_download_message.delay(doc.pk, context_json)
+    response = HttpResponse(doc, content_type='application/octet-stream')
     response['Content-Disposition'] = f'attachment; filename="{doc.name}"'
     return response
 
 
-def download_file1(request, pk):
-    document = get_object_or_404(Document, id=pk)
-
-    # Check if the user has permission to download this file
-    if document.user != request.user:
-        raise PermissionDenied
-
-    # Create a Download record
-    Document.objects.create(document=document)
-
-    # Open the file and create an HttpResponse with the file content
-    file_content = document.file.read()
-    response = HttpResponse(file_content, content_type='application/octet-stream')
-    response['Content-Disposition'] = f'attachment; filename="{document.name}"'
-    return response
-
-
+@login_required()
 def share_file(request, pk):
     doc = get_object_or_404(Document, pk=pk)
-    #   print('I got here')
-    #   print(doc.name)
     doc.is_shared = True
     doc.save()
+    context_data = {
+        'doc_name': doc.name,
+        #   'file_url': request.build_absolute_uri(doc.file.url),
+        'file_url': 'http://127.0.0.1:8000/shared/{}'.format(doc.pk),
+        'sender_name': doc.user.get_full_name(),
+        'company_name': doc.user.company_name,
+    }
+    context_json = json.dumps(context_data, cls=DjangoJSONEncoder)
     if request.method == 'POST':
+        response_data = {
+            'success': True,
+            'message': 'File shared successfully'
+        }
         recipient_email = request.POST.get('recipient_email')
-        #   subject = 'A file has been shared with you by {}'.format(request.user.company_name)
-        #   message = 'You have been shared a file via File Sharing App. Click the link below to download:'
-        #   download_link = request.build_absolute_uri(document.file.url)
-        #   html_message = render_to_string('email_template.html', {'download_link': download_link})
-        #   recipient = CustomUser.objects.get(email=recipient_email)
-        #   result = share_file_task.delay(request.user.pk, recipient_email) # smtplib
-        #   result = file_share.delay(request.user.pk, recipient_email) # elasticemail
-        #   result = share.delay(doc.pk, request.user.pk, recipient_email)  # EmailMessage
-        #   result = new_share.delay(request.user.pk, recipient_email) # elasticemail
-        #   result = share_brevo2.delay(doc.pk, request.user.pk, recipient_email)  # brevo {"code":"missing_parameter","message":"One of sender email or sender ID is mandatory"}
-        result = share_brevo.delay(doc.pk, request.user.pk, recipient_email)  # brevo error 503
-        if result.state == "success":
-            return JsonResponse({'success': True, 'message': 'File sent successfully to {}.'.format(recipient_email),
-                                 'status': result.status, 'email_result': result.result})
-
-        elif result.state == "Failure":
-            return JsonResponse({'success': False, 'message': 'Task to send message is {}.'.format(result.state)})
-        else:
-            return JsonResponse({'success': False, 'message': 'Task to send message is {}.'.format(result.state)})
+        send_simple_share_message.delay(request.user.pk, recipient_email, context_json)
+        json_response_data = json.dumps(response_data)
+        return JsonResponse(json_response_data, safe=False)
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
 
+@login_required()
 def all_shared_files(request):
     files = Document.objects.filter(is_shared=True, user=request.user).select_related('user')
     context = {
         'files':
             files}
     return render(request, 'my_files.html', context)
+
+
+@login_required()
+def shared_file(request, pk):
+    if request.method == 'GET':
+        file = Document.objects.get(pk=pk)
+        context = {
+            'file': file,
+        }
+        return render(request, 'shared_file.html', context)
+    return PermissionDenied
+
+
+@login_required()
+def summarize(request, pk):
+    text = request.GET.get('text', '')
+    document = Document.objects.get(pk=pk)
+    cache_key = f'summarized_text:{text}'  # Use the text as part of the cache key
+
+    # Try to get summarized text from cache
+    summarized_text = cache.get(cache_key)
+    print('Gotten from cache....{}'.format(summarized_text))
+
+    if summarized_text is None:
+        summarized_text = summarize_doc(document.file)
+        # Cache the summarized text for 30 seconds
+        cache.set(cache_key, summarized_text, 30)
+        print('Gotten from api....{}'.format(summarized_text))
+
+    context = {
+        'summarized_text': summarized_text,
+    }
+
+    return render(request, 'summarize.html', context)
 
 #   def get_files(request):
 #       files = Document.objects.filter(user=request.user)

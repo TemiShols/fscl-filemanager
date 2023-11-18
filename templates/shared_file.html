@@ -9,7 +9,7 @@
     <title>File Sharing App</title>
     <link rel="shortcut icon" href="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png">
    <link rel="manifest" href="manifest.json">
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
     <style>
         body {
@@ -133,7 +133,7 @@
         <!-- Main content -->
         <div class="container-fluid">
             <div class="main-content">
-                {% if files %}
+                {% if file %}
                 <div class="pt-3 pb-2 mb-3 border-bottom">
                     <a href="{% url 'files' %}"><img
                             src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png" alt="Logo"
@@ -142,16 +142,11 @@
                 <div class="container mb-2">
                     <h4 class="text text-center text-primary pb-4">My Files</h4>
                     <div class="row ">
-                        {% for file in files %}
                         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
                             <div class="card text-white bg-secondary mb-3">
                                 <div class="card-header">{{ file.uploaded_at }}</div>
                                 <div class="card-body">
-                                    {% if file.name == none%}
-                                    <h5 class="card-title">{{ file.file.name }}</h5>
-                                    {% else %}
                                     <h5 class="card-title">{{ file.name }}</h5>
-                                    {% endif %}
                                     <div class="card-text">
                                         <a class="btn btn-primary" href="{% url 'download' file.pk %}"
                                            target="_blank"
@@ -215,9 +210,6 @@
                                 </div>
                             </div>
                         </div>
-
-
-                        {% endfor %}
 
                     </div>
                 </div>

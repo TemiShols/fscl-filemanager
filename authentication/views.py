@@ -18,7 +18,7 @@ def login_user(request):
             if user.is_authenticated:
                 login(request, credential)
                 if previous_url:
-                    return redirect(previous_url)
+                    return redirect(previous_url, permanent=True)
                 else:
                     return redirect('upload')
             else:

@@ -1,0 +1,6 @@
+Dear {{ doc.user.get_full_name }},
+
+File, {{ doc.name }}, has been downloaded from FSCL Portal.
+
+Best Regards,
+FSCL Postmaster

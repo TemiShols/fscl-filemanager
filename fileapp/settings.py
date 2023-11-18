@@ -11,7 +11,13 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import logging
 import os
+from django.urls import reverse_lazy
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'pwa',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -87,9 +94,22 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-        }
+    }
 }
 
+# settings.py
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1',  # Redis server address and database number
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+CACHE_TIMEOUT = 30
 
 #   DATABASES = {
 #       'default': {
@@ -142,7 +162,7 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+     os.path.join(BASE_DIR, 'static'),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -198,9 +218,45 @@ PWA_APP_SPLASH_SCREEN = [
 PWA_APP_DIR = 'ltr'
 PWA_APP_LANG = 'en-US'
 
-
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
+
+LOGIN_URL = reverse_lazy('login')
+
+#   AWS_ACCESS_KEY_ID = '005fe9e0bbd9a5c0000000002'
+#   AWS_SECRET_ACCESS_KEY = 'K005cB6Ni4WCm/d+TUUZkgmrDfZkMfM'
+#   AWS_PRIVATE_BUCKET_NAME = 'fscl-portal-private'
+#   AWS_STORAGE_BUCKET_NAME = 'fscl-portal'
+#   AWS_QUERYSTRING_AUTH = False
+#   _AWS_EXPIRY = 60 * 60 * 24 * 7
+#   AWS_S3_OBJECT_PARAMETERS = {"CacheControl": f"max-age=86400", }
+#   AWS_S3_REGION_NAME = 'us-east-005'
+#   AWS_S3_ENDPOINT = f's3.{AWS_S3_REGION_NAME}.backblazeb2.com'
+#   AWS_S3_ENDPOINT_URL = f'https://{AWS_S3_ENDPOINT}'
+
+#   AWS_LOCATION = 'static'
+#   STATICFILES_STORAGE = 'fileapp.storage_backends.StaticStorage'
+#   STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_ENDPOINT}/"
+#   DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+#   STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+#   AWS_QUERYSTRING_AUTH = False
+# DO NOT change these unless you know what you're doing.
+
+#   AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", default=None)
+#   aws_s3_domain = AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.backblaze.com"
+
+
+sentry_sdk.init(
+    dsn="https://a6e45fc70c3d4a1f8330ffe76ded7e11@o326137.ingest.sentry.io/1833192",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)

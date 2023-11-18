@@ -8,5 +8,7 @@ urlpatterns = [
     path('shared_files/', views.all_shared_files, name='shared_file'),
     path('search/', views.filter_documents, name='search_file'),
     path('files/', views.list_files, name='files'),
+    path('summarize/<int:pk>/', views.summarize, name='summary'),
+    path('shared/<int:pk>/', views.shared_file, name='shared_file'),
     #   path('get_files/', views.get_files, name='all_files'),
 ]

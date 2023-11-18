@@ -6,10 +6,10 @@ from rest_framework.authtoken.models import Token
 from .serializer import UserSerializer
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 
 
-@csrf_exempt
+@csrf_protect
 @api_view(['POST', ])
 @permission_classes([])
 @authentication_classes([])
