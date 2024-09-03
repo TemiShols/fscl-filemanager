@@ -167,7 +167,6 @@ pydantic==2.8.2
 pydantic_core==2.20.1
 PyMuPDF==1.24.4
 PyMuPDFb==1.24.3
-pyodbc==4.0.39
 pypdf==4.3.1
 PyPDF2==3.0.1
 PyPika==0.48.9
