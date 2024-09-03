@@ -11,31 +11,40 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-import logging
+import environ
 import os
 from django.urls import reverse_lazy
 import sentry_sdk
+import dj_database_url
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+CHROMA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY= os.getenv('SECRET_KEY')
-#   SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-CSRF_TRUSTED_ORIGINS = ['vercel.app']
+#   SECRET_KEY= 'django-insecure-+cp9p6kiylf#b1v@**szdgqs(9t-_koo2y&0u@e!1%0o!47cnm'
+SECRET_KEY = env('SECRET_KEY')
+#   CSRF_TRUSTED_ORIGINS = ['vercel.app']
 CORS_ALLOW_ALL_ORIGINS: True
 CORS_ORIGIN_ALLOW_ALL = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
@@ -53,13 +62,14 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'pwa',
-    'storages'
+    'storages',
+    'redis'
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,12 +102,28 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+#   DATABASES = {
+#       'default': {
+#           'ENGINE': 'django.db.backends.sqlite3',
+#           'NAME': BASE_DIR / 'db.sqlite3',
+#   }
+#   }
+
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+   'default': {
+       'ENGINE': 'django.db.backends.postgresql_psycopg2',
+       'HOST': env('DB_HOST'),
+       'NAME': env('DB_NAME'),
+       'USER': env('DB_USER'),
+       'PASSWORD': env('DB_PASS'),
     }
 }
+
+#   db_from_env = dj_database_url.config(conn_max_age=500)
+#   DATABASES['default'].update(db_from_env)
+
+MISTRAL_UTIL_API_KEY = env('MISTRAL_UTIL_API_KEY')
 
 # settings.py
 
@@ -164,11 +190,15 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -223,12 +253,14 @@ PWA_APP_LANG = 'en-US'
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+#   CELERY_BROKER_URL = 'redis://default:ZrCgGHlkv8CK5zV1WmGREQNgdMjQH9MB@redis-14782.c56.east-us.azure.redns.redis-cloud' '.com:14782'
+#   CELERY_RESULT_BACKEND = 'redis://default:ZrCgGHlkv8CK5zV1WmGREQNgdMjQH9MB@redis-14782.c56.east-us.azure.redns.redis' '-cloud.com:14782'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 
 LOGIN_URL = reverse_lazy('login')
-
 
 sentry_sdk.init(
     dsn="https://a6e45fc70c3d4a1f8330ffe76ded7e11@o326137.ingest.sentry.io/1833192",
@@ -240,3 +272,29 @@ sentry_sdk.init(
     # We recommend adjusting this value in production.
     profiles_sample_rate=1.0,
 )
+
+OPENAI_API_KEY = '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'
+# Backblaze B2 settings
+#   DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = '48efd85cc4e8'
+AWS_SECRET_ACCESS_KEY = '005f24470f8569aadfdf258c807e93c48b79c35abc'
+AWS_STORAGE_BUCKET_NAME = ''
+AWS_S3_REGION_NAME = ''  # Leave this empty for Backblaze
+AWS_S3_ENDPOINT_URL = 's3.us-east-005.backblazeb2.com'  # Replace with your endpoint URL
+
+# Optional: Set custom domain if you've set up a CNAME record
+# AWS_S3_CUSTOM_DOMAIN = 'your_custom_domain.com'
+
+# Additional settings
+AWS_DEFAULT_ACL = None  # Use bucket defaults
+AWS_S3_FILE_OVERWRITE = False  # Prevent overwriting existing files
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',  # Cache files for 24 hours
+}
+
+MISTRAL_API_KEY = env('MISTRAL_API_KEY')
+HF_TOKEN = env('HF_TOKEN')
+HF_HUB_DISABLE_SYMLINKS_WARNING = env('HF_HUB_DISABLE_SYMLINKS_WARNING')
+KMP_DUPLICATE_LIB_OK = env('KMP_DUPLICATE_LIB_OK')
+
+MAX_REQUEST_BODY_SIZE = 10 * 1024 * 1024  # 10 MB

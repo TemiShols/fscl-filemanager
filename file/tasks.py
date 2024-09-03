@@ -6,6 +6,9 @@ import requests
 import json
 
 
+#   celery -A fileapp worker --pool=solo -l info
+
+
 @shared_task
 def send_simple_download_message(doc_id, context_json):
     doc = Document.objects.get(pk=doc_id)
@@ -17,7 +20,7 @@ def send_simple_download_message(doc_id, context_json):
     content = content.replace('{{ doc.user.get_full_name }}', context_data['sender_name'])
     return requests.post(
         "https://api.mailgun.net/v3/mg.neo-urban.ng/messages",
-        auth=("api", "ff703ca238df12566e02e62cd9e29b70-8c9e82ec-d2dd5812"),
+        auth=("api", "4b886c6df7ccbe4dd11af9d995c56116-2b755df8-4300fbed"),
         data={"from": "Testing <postmaster@mg.neo-urban.ng>",
               "to": [doc.user.email],
               "subject": subject,
@@ -37,7 +40,7 @@ def send_simple_share_message(sender_id, receiver_email, context_json):
     content = content.replace('{{ doc.user.company_name }}', context_data['company_name'])
     return requests.post(
         "https://api.mailgun.net/v3/mg.neo-urban.ng/messages",
-        auth=("api", "ff703ca238df12566e02e62cd9e29b70-8c9e82ec-d2dd5812"),
+        auth=("api", "4b886c6df7ccbe4dd11af9d995c56116-2b755df8-4300fbed"),
         data={"from": "FSCL <postmaster@mg.neo-urban.ng>",
               "to": [receiver_email],
               "subject": subject,

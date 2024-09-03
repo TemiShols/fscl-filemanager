@@ -105,65 +105,35 @@
         <!-- Main content -->
         <div class="container-fluid">
             <div class="main-content">
-                {% if files %}
+                {% if projects %}
                 <div class="pt-3 pb-2 mb-3 border-bottom">
                     <a href="{% url 'files' %}">
-                        <img src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png"
-                             alt="Logo"
+                        <img src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png" alt="Logo"
                              class="logo">
                     </a>
                 </div>
                 <div class="container mb-2">
                     <h4 class="text text-center text-primary pb-4">My Files</h4>
                     <div class="row">
-                        {% for file in files %}
+                        {% for project in projects %}
                         <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
                             <div class="card text-white
-                                 {% if file.type == 'pdf' %} bg-danger
-                                 {% elif file.type == 'docx' %} bg-primary
-                                 {% elif file.type == 'xlsx' %} bg-success
+                                 {% if project.is_sitemap %} bg-danger
+                                 {% elif project.is_website %} bg-primary
+                                 {% elif project.is_youtube %} bg-success
+                                 {% elif project.is_url %} bg-warning
                                  {% else %} bg-secondary
                                  {% endif %} mb-3">
-                                <div class="card-header">{{ file.uploaded_at }}</div>
+                                <div class="card-header">{{ project.uploaded_at }}</div>
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ file.name|default:file.file.name }}</h5>
+                                    <h5 class="card-title">{{ project.name }}</h5>
                                     <div class="card-text">
-                                        <a class="btn btn-primary" href="{% url 'download' file.pk %}" target="_blank"
-                                           role="button">
-                                            Download
-                                        </a>
-                                        <button class="btn btn-success" data-bs-toggle="modal"
-                                                data-bs-target="#shareModal{{ file.id }}">
-                                            <i class="bi bi-share-fill"></i> Share
-                                        </button>
-                                        <a href="{% url 'chatbot' file.pk %}" target="_blank" class="btn btn-primary">Chat</a>
+                                        <a href="{% url 'proj_chatbot' project.pk %}" target="_blank" class="btn btn-primary">Chat</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Share Modal -->
-                        <div class="modal fade" id="shareModal{{ file.id }}" tabindex="-1"
-                             aria-labelledby="shareModalLabel{{ file.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="shareModalLabel{{ file.id }}">Share File</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Share this file with:</p>
-                                        <form method="post" action="{% url 'share_file' file.pk %}">
-                                            {% csrf_token %}
-                                            <input type="email" class="form-control mb-3"
-                                                   placeholder="Enter email address" name="recipient_email">
-                                            <button type="submit" class="btn btn-primary">Share</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         {% endfor %}
                     </div>

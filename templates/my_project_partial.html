@@ -1,0 +1,25 @@
+<div class="row">
+    {% for project in projects %}
+    <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+        <div class="card text-white
+            {% if project.is_sitemap %} bg-danger
+            {% elif project.is_multiple %} bg-primary
+            {% elif project.is_youtube %} bg-success
+            {% else %} bg-secondary
+            {% endif %} mb-3">
+            <div class="card-header">{{ project.uploaded_at }}</div>
+            <div class="card-body">
+                {% if project.name %}
+                <h5 class="card-title">{{ project.name }}</h5>
+                {% else %}
+                <h5 class="card-title">{{ project.name }}</h5>
+                {% endif %}
+                <div class="card-text">
+
+                    <a href="{% url 'proj_chatbot' project.pk %}" target="_blank" class="btn btn-primary">Chatbot</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

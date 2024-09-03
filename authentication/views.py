@@ -20,7 +20,7 @@ def login_user(request):
                 if previous_url:
                     return redirect(previous_url, permanent=True)
                 else:
-                    return redirect('upload')
+                    return redirect('select')
             else:
                 messages.success(request, 'Please confirm your login details ')
                 return redirect('login')
@@ -44,12 +44,16 @@ def register_user(request):
             user_cred = form.save(commit=False)
             user_cred.save()
             login(request, user_cred, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('files')
+            return redirect('select')
 
     else:
         form = UserRegisterForm()
     context = {'form': form}
     return render(request, 'signUp.html', context)
+
+
+def selectionPage(request):
+    return render(request, 'selectionPage.html', {})
 
 
 #   @login_required()
