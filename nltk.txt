@@ -1,0 +1,9 @@
+brown
+inaugural
+gutenberg
+webtext
+treebank
+stopwords
+wordnet
+pros_cons
+reuters
