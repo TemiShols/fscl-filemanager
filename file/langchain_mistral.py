@@ -96,7 +96,8 @@ def process_langchain_rag_project(proj_id, query):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     documents = text_splitter.split_documents(docs)
 
-    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    #   embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    embedding_function = FastEmbedEmbeddings(model_name="all-MiniLM-L6-v2")
     vector_store = Chroma.from_documents(documents, embedding_function)
     retriever = vector_store.as_retriever()
 
