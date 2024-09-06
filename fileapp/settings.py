@@ -113,7 +113,7 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-       'HOST': env('DB_HOST'),
+       'HOST': '',
        'NAME': env('DB_NAME'),
        'USER': env('DB_USER'),
        'PASSWORD': env('DB_PASS'),
