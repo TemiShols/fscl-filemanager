@@ -1,4 +1,5 @@
 import os
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_mistralai.chat_models import ChatMistralAI
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
@@ -33,7 +34,8 @@ def process_langchain_rag(doc_id, query):
     # Split text into chunks
     text_splitter = RecursiveCharacterTextSplitter()
     documents = text_splitter.split_documents(docs)
-    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    #   embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    embedding_function = FastEmbedEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # Create the vector store
 
