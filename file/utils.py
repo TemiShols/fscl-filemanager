@@ -1,7 +1,5 @@
 from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader, CSVLoader, SitemapLoader, YoutubeLoader, \
-    UnstructuredURLLoader, SeleniumURLLoader, UnstructuredExcelLoader
-import requests
-from bs4 import BeautifulSoup
+    UnstructuredURLLoader, SeleniumURLLoader
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
