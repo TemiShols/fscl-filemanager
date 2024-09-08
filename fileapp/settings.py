@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-import environ
 import os
+from dotenv import load_dotenv
 from django.urls import reverse_lazy
 import sentry_sdk
 import dj_database_url
@@ -20,23 +20,25 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
-env = environ.Env(
-    # set casting, default value
-    DEBUG=(bool, False)
-)
+#   env = environ.Env(
+# set casting, default value
+#     DEBUG=(bool, False)
+# )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = Path(".") / ".env"
+load_dotenv(dotenv_path=env_path)
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+#   environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #   SECRET_KEY= 'django-insecure-+cp9p6kiylf#b1v@**szdgqs(9t-_koo2y&0u@e!1%0o!47cnm'
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 #   CSRF_TRUSTED_ORIGINS = ['vercel.app']
 CORS_ALLOW_ALL_ORIGINS: True
 CORS_ORIGIN_ALLOW_ALL = True
@@ -111,19 +113,19 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 
 
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql_psycopg2',
-       'HOST': '',
-       'NAME': 'fileapp',
-       'USER': 'welzatm',
-       'PASSWORD': 'Mayflower48$',
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': '',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASS'),
     }
 }
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
-MISTRAL_UTIL_API_KEY = env('MISTRAL_UTIL_API_KEY')
+MISTRAL_UTIL_API_KEY = os.getenv('MISTRAL_UTIL_API_KEY')
 
 # settings.py
 
@@ -198,7 +200,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -292,9 +293,9 @@ AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',  # Cache files for 24 hours
 }
 
-MISTRAL_API_KEY = env('MISTRAL_API_KEY')
-HF_TOKEN = env('HF_TOKEN')
-HF_HUB_DISABLE_SYMLINKS_WARNING = env('HF_HUB_DISABLE_SYMLINKS_WARNING')
-KMP_DUPLICATE_LIB_OK = env('KMP_DUPLICATE_LIB_OK')
+MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
+HF_TOKEN = os.getenv('HF_TOKEN')
+HF_HUB_DISABLE_SYMLINKS_WARNING = os.getenv('HF_HUB_DISABLE_SYMLINKS_WARNING')
+KMP_DUPLICATE_LIB_OK = os.getenv('KMP_DUPLICATE_LIB_OK')
 
 MAX_REQUEST_BODY_SIZE = 10 * 1024 * 1024  # 10 MB
