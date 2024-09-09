@@ -24,5 +24,5 @@ urlpatterns = [
     # api paths
     path('api/auth/', include('authentication.api.urls')),
     path('api/file/', include('file.api.urls')),
-    path('', include('django_backblaze_b2.urls')),
+    # path('', include('django_backblaze_b2.urls')),
 ]
