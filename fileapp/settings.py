@@ -46,7 +46,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -129,17 +129,17 @@ MISTRAL_UTIL_API_KEY = os.getenv('MISTRAL_UTIL_API_KEY')
 
 # settings.py
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://localhost:6379/1',  # Redis server address and database number
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
+# CACHES = {
+#   'default': {
+#        'BACKEND': 'django_redis.cache.RedisCache',
+#        'LOCATION': 'redis://localhost:6379/1',  # Redis server address and database number
+#        'OPTIONS': {
+#            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#        }
+#    }
+#}
 
-CACHE_TIMEOUT = 30
+#   CACHE_TIMEOUT = 30
 
 #   DATABASES = {
 #       'default': {

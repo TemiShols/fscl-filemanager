@@ -24,6 +24,7 @@ langchain-text-splitters==0.2.0
 langchainhub==0.1.13
 langdetect==1.0.9
 langsmith==0.1.83
+nest_asyncio
 numpy==1.26.4
 openai==1.37.0
 openpyxl==3.1.5
