@@ -17,9 +17,9 @@ from langchain.schema import Document
 
 nest_asyncio.apply()
 
-os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = settings.HF_HUB_DISABLE_SYMLINKS_WARNING
-os.environ["HF_TOKEN"] = settings.HF_TOKEN
-os.environ['KMP_DUPLICATE_LIB_OK'] = settings.KMP_DUPLICATE_LIB_OK
+#   os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = settings.HF_HUB_DISABLE_SYMLINKS_WARNING
+#   os.environ["HF_TOKEN"] = settings.HF_TOKEN
+#   os.environ['KMP_DUPLICATE_LIB_OK'] = settings.KMP_DUPLICATE_LIB_OK
 chat_model = ChatMistralAI(mistral_api_key=settings.MISTRAL_API_KEY)
 
 
