@@ -11,7 +11,6 @@ from .tasks import send_simple_download_message, send_simple_share_message
 from django.utils.text import get_valid_filename
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
-from .async_tasks import summarize_and_save, analyse_and_save
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import JsonResponse
@@ -214,37 +213,38 @@ def shared_file(request, pk):
     return PermissionDenied
 
 
-def summarize(request, pk):
-    doc = Document.objects.get(pk=pk)
-    if doc.summary:
-        context = {
-            'doc': doc,
-            'error': 'Please check file again or contact support for issues'
-        }
+# def summarize(request, pk):
+#    doc = Document.objects.get(pk=pk)
+#    if doc.summary:
+#        context = {
+#            'doc': doc,
+#            'error': 'Please check file again or contact support for issues'
+#        }
+#
+#        #return render(request, 'summarize.html', context)
+#    else#:
+#        summarize_and_save(doc.pk)#
+#
+#    context = {
+#        'doc': doc,
+#        'error': 'Please check file again or contact support for issues'
+#    }
+#
+#    return render(request, 'summarize.html', context)
 
-        return render(request, 'summarize.html', context)
-    else:
-        summarize_and_save(doc.pk)
 
-    context = {
-        'doc': doc,
-        'error': 'Please check file again or contact support for issues'
-    }
-
-    return render(request, 'summarize.html', context)
-
-
-def analyze(request, pk):
-    doc = Document.objects.get(pk=pk)
-
-    if not doc.summary:
-        analyse_and_save(doc.pk)
-    context = {
-        'doc': doc,
-        'error': 'Please check file again or contact support for issues'
-    }
-
-    return render(request, 'summarize.html', context)
+# def analyze(request, pk):
+#    doc = Document.objects.get(pk=pk)
+#
+#
+#    if not doc.summary:
+#        analyse_and_save(doc.pk)
+#    context = {
+#        'doc': doc,
+#        'error': 'Please check file again or contact support for issues'
+#    }
+#
+#   return render(request, 'summarize.html', context)
 
 
 def chatbot(request, pk=None):
