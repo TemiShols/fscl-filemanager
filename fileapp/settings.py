@@ -37,7 +37,6 @@ load_dotenv(dotenv_path=env_path)
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#   SECRET_KEY= 'django-insecure-+cp9p6kiylf#b1v@**szdgqs(9t-_koo2y&0u@e!1%0o!47cnm'
 SECRET_KEY = os.getenv('SECRET_KEY')
 #   CSRF_TRUSTED_ORIGINS = ['vercel.app']
 CORS_ALLOW_ALL_ORIGINS: True
@@ -252,11 +251,12 @@ PWA_APP_SPLASH_SCREEN = [
 PWA_APP_DIR = 'ltr'
 PWA_APP_LANG = 'en-US'
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.getenv('REDIS_URL')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
 
-#   CELERY_BROKER_URL = 'redis://default:ZrCgGHlkv8CK5zV1WmGREQNgdMjQH9MB@redis-14782.c56.east-us.azure.redns.redis-cloud' '.com:14782'
-#   CELERY_RESULT_BACKEND = 'redis://default:ZrCgGHlkv8CK5zV1WmGREQNgdMjQH9MB@redis-14782.c56.east-us.azure.redns.redis' '-cloud.com:14782'
+# CELERY_BROKER_URL = 'redis://default:ZrCgGHlkv8CK5zV1WmGREQNgdMjQH9MB@redis-14782.c56.east-us.azure.redns.redis
+# -cloud' '.com:14782' CELERY_RESULT_BACKEND =
+# 'redis://default:ZrCgGHlkv8CK5zV1WmGREQNgdMjQH9MB@redis-14782.c56.east-us.azure.redns.redis' '-cloud.com:14782'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
@@ -294,6 +294,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 
 MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
+MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY')
 #   HF_TOKEN = os.getenv('HF_TOKEN')
 #   HF_HUB_DISABLE_SYMLINKS_WARNING = os.getenv('HF_HUB_DISABLE_SYMLINKS_WARNING')
 #   KMP_DUPLICATE_LIB_OK = os.getenv('KMP_DUPLICATE_LIB_OK')

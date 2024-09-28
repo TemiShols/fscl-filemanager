@@ -4,6 +4,7 @@ from file.models import Document
 from celery import shared_task
 import requests
 import json
+from django.conf import settings
 
 
 #   celery -A fileapp worker --pool=solo -l info
@@ -20,7 +21,7 @@ def send_simple_download_message(doc_id, context_json):
     content = content.replace('{{ doc.user.get_full_name }}', context_data['sender_name'])
     return requests.post(
         "https://api.mailgun.net/v3/mg.neo-urban.ng/messages",
-        auth=("api", "4b886c6df7ccbe4dd11af9d995c56116-2b755df8-4300fbed"),
+        auth=("api", settings.MAILGUN_API_KEY),
         data={"from": "Testing <postmaster@mg.neo-urban.ng>",
               "to": [doc.user.email],
               "subject": subject,
@@ -40,7 +41,7 @@ def send_simple_share_message(sender_id, receiver_email, context_json):
     content = content.replace('{{ doc.user.company_name }}', context_data['company_name'])
     return requests.post(
         "https://api.mailgun.net/v3/mg.neo-urban.ng/messages",
-        auth=("api", "4b886c6df7ccbe4dd11af9d995c56116-2b755df8-4300fbed"),
+        auth=("api", settings.MAILGUN_API_KEY),
         data={"from": "FSCL <postmaster@mg.neo-urban.ng>",
               "to": [receiver_email],
               "subject": subject,

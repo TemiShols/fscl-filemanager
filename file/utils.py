@@ -111,9 +111,10 @@ def load_url(urls):
 def loads_urls(urls):
     options = Options()
     options.headless = True
-    options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--remote-debugging-port=9222")
     options.add_argument("start-maximized")
     options.add_argument("enable-automation")
     options.add_argument("--disable-infobars")
@@ -132,7 +133,8 @@ def loads_urls(urls):
         for url in urls:
             try:
                 driver.get(url)
-                time.sleep(5)  # Let the page load completely
+                # time.sleep(5)  # Let the page load completely
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                 soup = BeautifulSoup(driver.page_source, 'html.parser')
                 text_content = soup.get_text()
                 all_text_content.append(text_content)
