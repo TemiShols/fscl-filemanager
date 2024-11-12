@@ -12,7 +12,6 @@ django-pwa
 django-storages==1.14.1
 djangorestframework==3.12.4
 docx2txt==0.8
-fastembed
 gTTS==2.5.3
 gunicorn==20.1.0
 langchain==0.2.14
@@ -30,9 +29,7 @@ openai==1.37.0
 openpyxl==3.1.5
 pandas==2.2.2
 pillow==10.4.0
-psycopg==3.2.1
 psycopg-binary==3.2.1
-psycopg2-binary==2.9.9
 PyMuPDF==1.24.4
 PyMuPDFb==1.24.3
 pypdf==4.3.1

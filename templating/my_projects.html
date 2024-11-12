@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load pwa %}
+
+<head>
+    {% progressive_web_app_meta %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Sharing App</title>
+    <link rel="shortcut icon" href="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-size: cover;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        #sidebar {
+            position: fixed;
+            height: 100%;
+            width: 250px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        #sidebar ul.nav.flex-column {
+            padding-left: 0;
+        }
+
+        #sidebar ul.nav li.nav-item a.nav-link {
+            color: #ffffff;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .error-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="position-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'select' %}">Getting Started</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="foldersDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Folders</a>
+                        <ul class="dropdown-menu" aria-labelledby="foldersDropdown">
+                            <li><a class="dropdown-item" href="{% url 'files' %}">My Files</a></li>
+                            <li><a class="dropdown-item" href="#">Shared Files</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="projectsDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Projects</a>
+                        <ul class="dropdown-menu" aria-labelledby="projectsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'projects' %}">My Projects</a></li>
+                            <li><a class="dropdown-item" href="#">Shared Files</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'logout_user' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <div class="container-fluid">
+            <div class="main-content">
+                <div class="pt-3 pb-2 mb-3 border-bottom">
+                    <a href="{% url 'files' %}">
+                        <img src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png" alt="Logo"
+                             class="logo">
+                    </a>
+                </div>
+                <div class="container mb-2">
+                    <h4 class="text text-center text-primary pb-4">My Files</h4>
+                    <div class="row">
+                        {% for project in projects %}
+                        <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+                            <div class="card text-white
+                                 {% if project.is_sitemap %} bg-danger
+                                 {% elif project.is_website %} bg-primary
+                                 {% elif project.is_youtube %} bg-success
+                                 {% elif project.is_url %} bg-warning
+                                 {% else %} bg-secondary
+                                 {% endif %} mb-3">
+                                <div class="card-header">{{ project.uploaded_at }}</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ project.name }}</h5>
+                                    <div class="card-text">
+                                        <a href="{% url 'proj_chatbot' project.pk %}" target="_blank" class="btn btn-primary">Chat</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% else %}
+                <div class="error-container">
+                    <div class="error-message">You have no Files available</div>
+                    <p>The page you are looking for might have been removed or is temporarily unavailable.</p>
+                    <a href="{% url 'upload' %}" class="home-link">Back to Home Page</a>
+                </div>
+                {% endif %}{% if projects %}
+
+
+                <!-- Toast Notification -->
+                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <!-- Provide your image URL here -->
+                        <img src="your-image-url-here" class="rounded me-2" alt="...">
+                        <strong class="me-auto">Bootstrap</strong>
+                        <small>11 mins ago</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        Hello, world! This is a toast message.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.share-button').click(function() {
+            var filePk = $(this).data('file-pk');
+            var recipientEmail = $('#recipientEmail').val();
+            console.log('File ID:', filePk, 'Recipient Email:', recipientEmail);
+
+            // You can add your share functionality here
+        });
+    });
+</script>
+</body>
+</html>

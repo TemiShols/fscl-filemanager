@@ -112,118 +112,136 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h2>{{ document.name }} - Chatbot</h2>
-    <div class="chat-container">
-        <div id="display">
-            {% include 'chatbot_response_partial.html' with chat_history=chat_history %}
+<h2>{{ document.name }} - Chatbot</h2>
+<div class="chat-container">
+    <div id="display">
+        {% for message in chat_history %}
+        <div class="message {% if message.is_bot_response %}bot-message{% else %}user-message{% endif %}">
+            <p class="message-content">{{ message.message }}</p>
+            <span class="timestamp">{{ message.timestamp }}</span>
+
+            {% if message.is_bot_response %}
+            <!-- Display play and download icons -->
+            <div class="audio-controls">
+                <audio controls>
+                    <source src="{% if audio_file_url %}{{ audio_file_url }}{% endif %}" type="audio/mpeg">
+                    Your browser does not support the audio tag.
+                </audio>
+                <a href="{% if audio_file_url %}{{ audio_file_url }}{% endif %}" download>
+                    <img src="https://cdn-icons-png.flaticon.com/512/61/61100.png" alt="Download"
+                         style="width: 20px; height: 20px;">
+                </a>
+            </div>
+            {% endif %}
         </div>
-        <form id="chat-form" hx-post="{% url 'chatbot' document.pk %}"
-              hx-trigger="submit"
-              hx-target="#display"
-              hx-swap="beforeend"
-              hx-on::after-request='this.reset()'>
-            {% csrf_token %}
-            <input type="hidden" name="document" id="document-id" value="{{ document.pk }}"/>
-            <input type="text" name="query" id="query" placeholder="Ask a question..." required>
-            <button type="submit">Send</button>
-        </form>
+        {% endfor %}
+
     </div>
+    <form id="chat-form"
+          action="{% url 'chatbot' document.pk %}"
+          method="post">
+        {% csrf_token %}
+        <input type="hidden" name="document" id="document-id" value="{{ document.pk }}"/>
+        <input type="text" name="query" id="query" placeholder="Ask a question..." required>
+        <button type="submit">Send</button>
+    </form>
+</div>
 
-    <script>
-        // Initialize flag for user scroll position
-        var isUserScrolling = false;
+<script>
+    // Initialize flag for user scroll position
+    var isUserScrolling = false;
 
-        // Function to handle scroll events
-        function handleScroll() {
-            var display = document.getElementById('display');
-            var isScrolledToBottom = display.scrollHeight - display.scrollTop === display.clientHeight;
+    // Function to handle scroll events
+    function handleScroll() {
+        var display = document.getElementById('display');
+        var isScrolledToBottom = display.scrollHeight - display.scrollTop === display.clientHeight;
 
-            isUserScrolling = !isScrolledToBottom;
-        }
-
-        document.getElementById('display').addEventListener('scroll', handleScroll);
-
-        // Adjust scroll based on flag
-        function adjustScroll() {
-            var display = document.getElementById('display');
-            if (!isUserScrolling) {
-                display.scrollTop = display.scrollHeight;
-            }
-        }
-
-        document.body.addEventListener('htmx:afterRequest', function(event) {
-        if (event.detail.elt.tagName === 'FORM') {
-        // Reset the form to clear the input field
-        event.detail.elt.reset();
-        // Ensure the query input is cleared
-        document.getElementById('query').value = '';
-        adjustScroll();
+        isUserScrolling = !isScrolledToBottom;
     }
+
+    document.getElementById('display').addEventListener('scroll', handleScroll);
+
+    // Adjust scroll based on flag
+    function adjustScroll() {
+        var display = document.getElementById('display');
+        if (!isUserScrolling) {
+            display.scrollTop = display.scrollHeight;
+        }
+    }
+
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+    if (event.detail.elt.tagName === 'FORM') {
+    // Reset the form to clear the input field
+    event.detail.elt.reset();
+    // Ensure the query input is cleared
+    document.getElementById('query').value = '';
+    adjustScroll();
+}
 });
 
-        $(document).ready(function () {
-            setInterval(function () {
-                $.ajax({
-                    type: 'GET',
-                    url: "/get-messages/{{ document.pk }}/",
-                    success: function (response) {
-                        var display = $("#display");
-                        var isScrolledToBottom = display[0].scrollHeight - display.scrollTop() <= display.outerHeight();
+    $(document).ready(function () {
+        setInterval(function () {
+            $.ajax({
+                type: 'GET',
+                url: "/get-messages/{{ document.pk }}/",
+                success: function (response) {
+                    var display = $("#display");
+                    var isScrolledToBottom = display[0].scrollHeight - display.scrollTop() <= display.outerHeight();
 
-                        display.empty();
-                        response.messages.forEach(function (message) {
-                            var messageClass = message.is_bot_response ? 'bot-message' : 'user-message';
-                            var messageElement = `<div class="message ${messageClass}">
-                                <p class="message-content">${message.message}</p>
-                                <span class="timestamp">${message.timestamp}</span>
-                            </div>`;
-                            display.append(messageElement);
-                        });
+                    display.empty();
+                    response.messages.forEach(function (message) {
+                        var messageClass = message.is_bot_response ? 'bot-message' : 'user-message';
+                        var messageElement = `<div class="message ${messageClass}">
+                            <p class="message-content">${message.message}</p>
+                            <span class="timestamp">${message.timestamp}</span>
+                        </div>`;
+                        display.append(messageElement);
+                    });
 
-                        if (isScrolledToBottom) {
-                            display.scrollTop(display.prop("scrollHeight"));
-                        }
-                    },
-                    error: function () {
-                        alert('An error occurred');
+                    if (isScrolledToBottom) {
+                        display.scrollTop(display.prop("scrollHeight"));
                     }
-                });
-            }, 1000);
-        });
-
-        // Handle HTMX events for the progress bar
-        document.body.addEventListener('htmx:beforeRequest', function(event) {
-            var display = document.getElementById('display');
-
-            // Create and append progress bar element
-            var progressContainer = document.createElement('div');
-            progressContainer.className = 'progress-container';
-            progressContainer.innerHTML = `
-                <div class="progress-bar" id="progress-bar"></div>
-                <div class="progress-text" id="progress-text">Processing...</div>`;
-            display.appendChild(progressContainer);
-
-            // Gradually increase the width of the progress bar
-            var progressBar = document.getElementById('progress-bar');
-            var progressWidth = 0;
-            var interval = setInterval(function() {
-                progressWidth += 5;
-                progressBar.style.width = progressWidth + '%';
-                if (progressWidth >= 90) {
-                    clearInterval(interval);
+                },
+                error: function () {
+                    alert('An error occurred');
                 }
-            }, 1000); // Increase width every 100ms
-        });
+            });
+        }, 1000);
+    });
 
-        document.body.addEventListener('htmx:afterRequest', function(event) {
-            var progressBar = document.getElementById('progress-bar');
-            var progressText = document.getElementById('progress-text');
-            progressBar.style.width = '100%';
-            progressText.innerText = 'Complete!';
-            setTimeout(function() {
-                progressBar.parentElement.remove();
-            }, 500); // Hide progress bar after a short delay
-        });
-    </script>
+    // Handle HTMX events for the progress bar
+    document.body.addEventListener('htmx:beforeRequest', function(event) {
+        var display = document.getElementById('display');
+
+        // Create and append progress bar element
+        var progressContainer = document.createElement('div');
+        progressContainer.className = 'progress-container';
+        progressContainer.innerHTML = `
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Processing...</div>`;
+        display.appendChild(progressContainer);
+
+        // Gradually increase the width of the progress bar
+        var progressBar = document.getElementById('progress-bar');
+        var progressWidth = 0;
+        var interval = setInterval(function() {
+            progressWidth += 5;
+            progressBar.style.width = progressWidth + '%';
+            if (progressWidth >= 90) {
+                clearInterval(interval);
+            }
+        }, 1000); // Increase width every 100ms
+    });
+
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+        var progressBar = document.getElementById('progress-bar');
+        var progressText = document.getElementById('progress-text');
+        progressBar.style.width = '100%';
+        progressText.innerText = 'Complete!';
+        setTimeout(function() {
+            progressBar.parentElement.remove();
+        }, 500); // Hide progress bar after a short delay
+    });
+</script>
 </body>
 </html>

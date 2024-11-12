@@ -1,60 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selection Page</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #fff;
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .full-height {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        max-width: 800px;  /* Increased from 600px */
+        width: 90%;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .card {
+        padding: 3.5rem;  /* Increased padding */
+        border-radius: 12px;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-size: 1.5rem;  /* Increased font size */
+        font-weight: 500;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        min-height: 150px;  /* Added minimum height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-blue {
+        background-color: #3498db;
+    }
+
+    .card-green {
+        background-color: #2ecc71;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+        width: 100%;  /* Make the link take full width */
+    }
+
+    @media (max-width: 768px) {
+        .cards-container {
+            padding: 1.5rem;
+            gap: 2rem;
+            width: 95%;
         }
-        .container {
-            display: flex;
-            gap: 20px;
-        }
+
         .card {
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-size: 1.2em;
-            color: white;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.3s;
+            padding: 2.5rem;
+            font-size: 1.3rem;
+            min-height: 120px;
         }
-        .card:hover {
-            transform: scale(1.05);
-        }
-        .card-blue {
-            background-color: #007bff;
-        }
-        .card-green {
-            background-color: #28a745;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <a href="{% url 'upload' %}">
-        <div class="card card-blue">
-            Documents(PDF, Excel, Docx)
-        </div>
-    </a>
-    <a href="{% url 'create_project' %}">
-        <div class="card card-green" >
-            Website sitemap, URLs, Youtube videos
-        </div>
-    </a>
+    }
+</style>
 
-
+<div class="container-fluid">
+    <div class="full-height">
+        <div class="cards-container">
+            <a href="{% url 'upload' %}">
+                <div class="card card-blue">
+                    Documents (PDF, Excel, Docx)
+                </div>
+            </a>
+            <a href="{% url 'create_project' %}">
+                <div class="card card-green">
+                    Website sitemap, URLs, YouTube videos
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}

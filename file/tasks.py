@@ -15,7 +15,7 @@ def send_simple_download_message(doc_id, context_json):
     doc = Document.objects.get(pk=doc_id)
     context_data = json.loads(context_json)
     subject = 'File, {}, downloaded'.format(doc.name)
-    with open('templates/download_file.txt', 'r') as file:
+    with open('templating/download_file.txt', 'r') as file:
         content = file.read()
     content = content.replace('{{ doc.name }}', context_data['doc_name'])
     content = content.replace('{{ doc.user.get_full_name }}', context_data['sender_name'])
@@ -33,7 +33,7 @@ def send_simple_share_message(sender_id, receiver_email, context_json):
     sender = CustomUser.objects.get(pk=sender_id)
     context_data = json.loads(context_json)
     subject = 'File Shared with You by {}'.format(sender.company_name)
-    with open('templates/share_email.txt', 'r') as file:
+    with open('templating/share_email.txt', 'r') as file:
         content = file.read()
     content = content.replace('{{ doc.name }}', context_data['doc_name'])
     content = content.replace('{{ doc.file.url }}', context_data['file_url'])

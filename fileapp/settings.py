@@ -37,7 +37,7 @@ load_dotenv(dotenv_path=env_path)
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = 'django-insecure-+cp9p6kiylf#b1v@**szdgqs(9t-_koo2y&0u@e!1%0o!47cn'm
 #   CSRF_TRUSTED_ORIGINS = ['vercel.app']
 CORS_ALLOW_ALL_ORIGINS: True
 CORS_ORIGIN_ALLOW_ALL = True
@@ -121,8 +121,8 @@ DATABASES = {
     }
 }
 
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+# db_from_env = dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
 
 MISTRAL_UTIL_API_KEY = os.getenv('MISTRAL_UTIL_API_KEY')
 
@@ -190,9 +190,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATICFILES_DIRS = [BASE_DIR, 'static']
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

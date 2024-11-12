@@ -128,7 +128,6 @@ def loads_urls(urls):
     driver = webdriver.Chrome(service=service, options=options)
 
     all_text_content = []
-
     try:
         for url in urls:
             try:
@@ -151,8 +150,19 @@ def loads_urls(urls):
         driver.quit()
 
 
+def get_base_url(url):
+    return url
+
+
 def generate_sitemap(base_url):
     """Generates a sitemap for the given base URL."""
+    print(base_url)
+    if not base_url:
+        raise ValueError("base_url cannot be None or empty")
+
+    if not base_url.startswith(('http://', 'https://')):
+        raise ValueError("base_url must start with 'http://' or 'https://'")
+
     options = Options()
     options.headless = True
     options.add_argument("--disable-gpu")
@@ -172,7 +182,6 @@ def generate_sitemap(base_url):
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
-
     sitemap = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
     visited_urls = set()
 
@@ -181,7 +190,6 @@ def generate_sitemap(base_url):
         if url in visited_urls or not url.startswith(base_url):
             return
         visited_urls.add(url)
-
         try:
             driver.get(url)
             time.sleep(5)  # Let the page load completely

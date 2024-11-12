@@ -10,132 +10,115 @@
     <link rel="shortcut icon" href="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <style>
-        body {
-            background-size: cover;
-        }
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background: rgba(255, 255, 255, 0.8);
-        }
-        #sidebar {
-            position: fixed;
-            height: 100%;
-            width: 250px;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-        #sidebar ul.nav.flex-column {
-            padding-left: 0;
-        }
-        #sidebar ul.nav li.nav-item a.nav-link {
-            color: #ffffff;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .logo {
-            width: 100px;
-            height: auto;
-            margin-bottom: 20px;
-        }
-        .spinner-container {
-            display: none; /* Initially hidden */
-            text-align: center;
-            margin-top: 20px;
-        }
-        .spinner-grow {
-            width: 3rem;
-            height: 3rem;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 </head>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'upload' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'projects' %}">###</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Dropdown
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Action</a></li>
+                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
 
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div class="position-sticky">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Menu</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'upload' %}">Home/Upload File</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="foldersDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">Folders</a>
-                        <ul class="dropdown-menu" aria-labelledby="foldersDropdown">
-                            <li><a class="dropdown-item" href="{% url 'files' %}">My Files</a></li>
-                            <li><a class="dropdown-item" href="#">Shared Files</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="foldersDropdown10" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">Projects</a>
-                        <ul class="dropdown-menu" aria-labelledby="foldersDropdown">
-                            <li><a class="dropdown-item" href="{% url 'projects' %}">My Projects</a></li>
-                            <li><a class="dropdown-item" href="#">Shared Files</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'logout_user' %}">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
 
-        <!-- Main content -->
-        <div class="container-fluid">
-            {% block content %}
-            {% endblock %}
-        </div>
-    </div>
-</div>
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <img src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png" width="100"
-                 height="32" class="rounded me-2" alt="...">
-            <strong class="me-auto">FSCL</strong>
-            <small>11 mins ago</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            Welcome {{ user.first_name}}. You are Logged in!!
-        </div>
+<!-- Page Content -->
+<div id="page-content-wrapper">
+    <div class="main-content">
+
+        {% block content %}
+        {% endblock %}
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toastLiveExample = document.getElementById('liveToast');
-        const toastBootstrap = new bootstrap.Toast(toastLiveExample);
-        toastBootstrap.show();
-    });
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const toastLiveExample = document.getElementById('liveToast');
         const toastBootstrap = new bootstrap.Toast(toastLiveExample);
         toastBootstrap.show();
+
+        // Sidebar toggle functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebarWrapper = document.getElementById('sidebar-wrapper');
+        const pageContentWrapper = document.getElementById('page-content-wrapper');
+
+        menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            menuToggle.classList.toggle('collapsed');
+            sidebarWrapper.classList.toggle('collapsed');
+            pageContentWrapper.classList.toggle('collapsed');
+        });
+
+        // Automatically collapse sidebar on mobile
+        function checkWidth() {
+            if (window.innerWidth <= 768) {
+                sidebarWrapper.classList.add('collapsed');
+                pageContentWrapper.classList.add('collapsed');
+                menuToggle.classList.add('collapsed');
+            }
+        }
+
+        // Check width on load
+        checkWidth();
+
+        // Check width on resize
+        window.addEventListener('resize', checkWidth);
     });
 
     function resetForm(event) {
         event.target.reset();
     }
+
+    function showLoaderOnClick(event) {
+        event.preventDefault();
+        showLoader();
+        document.getElementById('upload-form').submit();
+    }
+
+    function showLoader() {
+        const loaderDiv = document.createElement('div');
+        loaderDiv.id = 'loadingDiv';
+        loaderDiv.innerHTML = '<div class="spinner-grow text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        document.body.appendChild(loaderDiv);
+    }
 </script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

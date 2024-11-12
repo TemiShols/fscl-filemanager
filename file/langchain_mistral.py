@@ -17,9 +17,6 @@ from langchain.schema import Document
 
 nest_asyncio.apply()
 
-#   os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = settings.HF_HUB_DISABLE_SYMLINKS_WARNING
-#   os.environ["HF_TOKEN"] = settings.HF_TOKEN
-#   os.environ['KMP_DUPLICATE_LIB_OK'] = settings.KMP_DUPLICATE_LIB_OK
 chat_model = ChatMistralAI(mistral_api_key=settings.MISTRAL_API_KEY)
 
 
@@ -28,29 +25,13 @@ def process_langchain_rag(doc_id, query):
         doc = Dokument.objects.get(pk=doc_id)
     except Dokument.DoesNotExist:
         raise ValueError(f"Project not found: {doc_id}")
-
-    # Create a Document directly from the project content
     docs = [Document(page_content=doc.content, metadata={"source": f"project_{doc_id}"})]
-    # Split text into chunks
     text_splitter = RecursiveCharacterTextSplitter()
     documents = text_splitter.split_documents(docs)
-    #   embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    embedding_function = FastEmbedEmbeddings(model_name="all-MiniLM-L6-v2")
-
-    # Create the vector store
-
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     vector_store = Chroma.from_documents(documents, embedding_function)
     retriever = vector_store.as_retriever()
-
-    # Define LLM
     model = chat_model
-    #   add memory so that our conversation can be remembered across subsequent queries
-    #   memory = ConversationBufferWindowMemory(
-    #   memory_key='chat_history',
-    #   return_messages=True,
-    #   k=3
-    #   )
-    # Define prompt template
     prompt = ChatPromptTemplate.from_template("""
     You are an AI assistant tasked with answering questions based on provided context. 
     If the context does not contain enough information to answer the question, 
@@ -74,14 +55,6 @@ def process_langchain_rag(doc_id, query):
     document_chain = create_stuff_documents_chain(model, prompt)
     retrieval_chain = create_retrieval_chain(retriever, document_chain, )
     response = retrieval_chain.invoke({"input": query})
-    #   conversation = ConversationalRetrievalChain.from_llm(
-    #   llm=model,
-    #   retriever=retriever,
-    #   memory=memory,
-    #   max_tokens_limit=1536,
-    #   prompt=prompt,
-    #   )
-    #   response = conversation.invoke({"input": query})
     return response["answer"]
 
 
@@ -90,25 +63,15 @@ def process_langchain_rag_project(proj_id, query):
         proj = Project.objects.get(pk=proj_id)
     except Project.DoesNotExist:
         raise ValueError(f"Project not found: {proj_id}")
-
-        # Create a Document directly from the project content
     docs = [Document(page_content=proj.content, metadata={"source": f"project_{proj_id}"})]
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     documents = text_splitter.split_documents(docs)
 
-    #   embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    embedding_function = FastEmbedEmbeddings(model_name="all-MiniLM-L6-v2")
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     vector_store = Chroma.from_documents(documents, embedding_function)
     retriever = vector_store.as_retriever()
 
     model = chat_model
-
-    #   memory = ConversationBufferWindowMemory(
-    #   memory_key='chat_history',
-    #   return_messages=True,
-    #   k=3
-    #   )
-
     prompt = ChatPromptTemplate.from_template("""
     You are an AI assistant tasked with answering questions based on provided context. 
     If the context does not contain enough information to answer the question, 

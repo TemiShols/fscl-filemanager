@@ -19,7 +19,7 @@ class FileSharingAppTests(TestCase):
     def test_upload_file_view(self):
         response = self.client.get(reverse('upload'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'files.html')
+        self.assertTemplateUsed(response, 'file2.html')
 
         with open('C:/Users/tpsol/Downloads/filemanager/uploads/file.txt', 'rb') as file_data:
             response = self.client.post(reverse('upload'), {'file': file_data})

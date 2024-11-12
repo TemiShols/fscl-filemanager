@@ -122,31 +122,12 @@
 <h2>{{ project.name }} - Chatbot</h2>
 <div class="chat-container">
     <div id="display">
-        {% for message in chat_history %}
-        <div class="message {% if message.is_bot_response %}bot-message{% else %}user-message{% endif %}">
-            <p class="message-content">{{ message.message }}</p>
-            <span class="timestamp">{{ message.timestamp }}</span>
-
-            {% if message.is_bot_response %}
-            <!-- Display play and download icons -->
-            <div class="audio-controls">
-                <audio controls>
-                    <source src="{% if audio_file_url %}{{ audio_file_url }}{% endif %}" type="audio/mpeg">
-                    Your browser does not support the audio tag.
-                </audio>
-                <a href="{% if audio_file_url %}{{ audio_file_url }}{% endif %}" download>
-                    <img src="https://cdn-icons-png.flaticon.com/512/61/61100.png" alt="Download"
-                         style="width: 20px; height: 20px;">
-                </a>
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
-
+        {% include 'chatbot_response_partial.html' with chat_history=chat_history %}
     </div>
-    <form id="chat-form"
-          action="{% url 'proj_chatbot' project.pk %}"
-          method="post">
+    <form id="chat-form" hx-post="{% url 'proj_chatbot' project.pk %}"
+          hx-trigger="submit"
+          hx-target="#display"
+          hx-swap="beforeend">
         {% csrf_token %}
         <input type="hidden" name="project" id="project-id" value="{{ project.pk }}"/>
         <input type="text" name="query" id="query" placeholder="Ask a question..." required>

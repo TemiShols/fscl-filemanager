@@ -39,7 +39,7 @@ def share_brevo(pk, sender_id, receiver_email):
     subject = 'A file has been shared with you by {}'.format(sender.company_name)
     api_key = settings.BREVO_API_KEY
     try:
-        with open('templates/email.html', 'r') as file:
+        with open('templating/email.html', 'r') as file:
             html_content = file.read()
     except Exception as e:
         print('File not read because of {}'.format(e))

@@ -17,48 +17,79 @@ from django.http import JsonResponse
 from django.conf import settings
 from .models import Document, ChatMessage, Project
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.http import HttpResponseBadRequest, JsonResponse
+from django.conf import settings
+from django.contrib import messages
+from .models import Document
 
-@login_required()
+
+@login_required
 def upload_file(request):
-    if request.method == 'POST':
-        request_body_size = int(request.META.get('CONTENT_LENGTH', 0))
-        if request_body_size > settings.MAX_REQUEST_BODY_SIZE:
-            return HttpResponseBadRequest('Request body is too large.')
+    try:
+        if request.method == 'POST':
+            # Check file size
+            request_body_size = int(request.META.get('CONTENT_LENGTH', 0))
+            if request_body_size > settings.MAX_REQUEST_BODY_SIZE:
+                return HttpResponseBadRequest('File size exceeds maximum allowed limit.')
 
-        uploaded_file = request.FILES.get('file')
-        if uploaded_file is not None and uploaded_file.name:
+            # Get uploaded file
+            uploaded_file = request.FILES.get('file')
+            if not uploaded_file or not uploaded_file.name:
+                messages.error(request, 'No file was uploaded.')
+                return redirect('upload')
+
+            # Process file
             file_name = uploaded_file.name
             file_type = file_name.split('.')[-1].lower()
 
-            doc = Document.objects.create(file=uploaded_file, name=file_name, user=request.user, type=file_type)
+            # Validate file type
+            allowed_types = ['docx', 'pdf', 'csv', 'xlsx']
+            if file_type not in allowed_types:
+                messages.error(request, f'Unsupported file type. Allowed types: {", ".join(allowed_types)}')
+                return redirect('upload')
 
-            if file_type in ['docx', 'pdf', 'csv', 'xlsx']:
-                content_loader = {
-                    'docx': load_docx_file,
-                    'pdf': load_pdf_file,
-                    'csv': load_csv_file,
-                    'xlsx': load_xlsx_file
-                }
+            # Create document record
+            doc = Document.objects.create(
+                file=uploaded_file,
+                name=file_name,
+                user=request.user,
+                type=file_type
+            )
+
+            # Process file content based on type
+            content_loader = {
+                'docx': load_docx_file,
+                'pdf': load_pdf_file,
+                'csv': load_csv_file,
+                'xlsx': load_xlsx_file
+            }
+
+            try:
                 content = content_loader[file_type](doc.file.path)
                 doc.content = content
                 doc.save()
-            else:
-                messages.error(request, 'Unsupported file type.')
-                return HttpResponseBadRequest('Unsupported file type.')
+                messages.success(request, 'File uploaded and processed successfully.')
+            except Exception as e:
+                doc.delete()  # Clean up on failure
+                messages.error(request, f'Error processing file: {str(e)}')
+                return redirect('upload')
 
-            files = Document.objects.filter(user=request.user.id).order_by('-uploaded_at')
+        # Get user's files for display
+        files = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+        context = {
+            'files': files,
+            'max_file_size': settings.MAX_REQUEST_BODY_SIZE,
+            'allowed_types': ['docx', 'pdf', 'csv', 'xlsx'],
+            'url':request.build_absolute_uri()
+        }
 
-            if request.headers.get('HX-Request'):
-                return render(request, 'my_file_partial.html', {'files': files})
-            else:
-                messages.success(request, 'File uploaded successfully')
-                return render(request, 'file2.html', {'files': files})
-        else:
-            messages.error(request, 'No file is uploaded. Please ensure you have uploaded a file.')
-            return HttpResponseBadRequest('No file uploaded.')
+        return render(request, 'file2.html', context)
 
-    files = Document.objects.filter(user=request.user.id).order_by('-uploaded_at')
-    return render(request, 'file2.html', {'files': files})
+    except Exception as e:
+        messages.error(request, f'An unexpected error occurred: {str(e)}')
+        return redirect('upload')
 
 
 def create_project(request):
@@ -364,7 +395,7 @@ def process_sitemap_view(request):
 
 def gen_sitemap(request):
     if request.method == 'POST':
-        url = request.POST.get('sitemap')
+        url = request.POST.get('url_input')
         try:
             sitemap_path = generate_sitemap(url)
             if sitemap_path:
