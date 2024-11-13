@@ -113,11 +113,15 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': 'fileapp_db',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASS'),
+        'PORT': 5432,
+        'OPTIONS': {
+            'driver': 'psycopg',
+        },
     }
 }
 
