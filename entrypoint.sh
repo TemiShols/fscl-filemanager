@@ -15,7 +15,7 @@ python << END
 import socket
 import time
 import os
-import psycopg2
+import psycopg
 
 host = "fileapp_db"
 port = 5432
@@ -39,11 +39,11 @@ print("Attempting to connect to the database...")
 attempt = 0
 while attempt < max_attempts:
     try:
-        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        conn = psycopg.connect(os.environ['DATABASE_URL'])
         print("Successfully connected to PostgreSQL")
         conn.close()
         break
-    except psycopg2.OperationalError as e:
+    except psycopg.OperationalError as e:
         attempt += 1
         print(f"Failed to connect to PostgreSQL (attempt {attempt}/{max_attempts}): {e}")
         time.sleep(2)
