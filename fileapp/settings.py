@@ -119,9 +119,6 @@ DATABASES = {
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASS'),
         'PORT': 5432,
-        'OPTIONS': {
-            'driver': 'psycopg',
-        },
     }
 }
 
