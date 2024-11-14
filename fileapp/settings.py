@@ -114,7 +114,7 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'fileapp_db',
+        'HOST': 'localhost',
         'NAME': 'fileapp',
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASS'),
