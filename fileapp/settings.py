@@ -108,19 +108,19 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 #           'ENGINE': 'django.db.backends.sqlite3',
 #           'NAME': BASE_DIR / 'db.sqlite3',
 #   }
-
+#
 
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'NAME': 'fileapp',
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASS'),
         'PORT': 5432,
         'OPTIONS': {
-                 'sslmode': 'require',
+            'sslmode': 'require',
         }
     }
 }
@@ -140,7 +140,7 @@ MISTRAL_UTIL_API_KEY = os.getenv('MISTRAL_UTIL_API_KEY')
 #            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
 #        }
 #    }
-#}
+# }
 
 #   CACHE_TIMEOUT = 30
 
