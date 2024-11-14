@@ -108,7 +108,7 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 #           'ENGINE': 'django.db.backends.sqlite3',
 #           'NAME': BASE_DIR / 'db.sqlite3',
 #   }
-#   }
+
 
 
 DATABASES = {
@@ -120,7 +120,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASS'),
         'PORT': 5432,
         'OPTIONS': {
-                'sslmode': 'require',
+                 'sslmode': 'require',
         }
     }
 }
