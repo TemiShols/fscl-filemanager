@@ -103,27 +103,27 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-#   DATABASES = {
-#       'default': {
-#           'ENGINE': 'django.db.backends.sqlite3',
-#           'NAME': BASE_DIR / 'db.sqlite3',
-#   }
-#
-
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fscl-database',
-        'USER': 'hmciaqzvux',
-        'PASSWORD': 'mWMqgN5UxU5orh$m',
-        'HOST': 'fscl-server.postgres.database.azure.com',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',
-        }
-    }
+       'default': {
+           'ENGINE': 'django.db.backends.sqlite3',
+           'NAME': os.path.join(BASE_DIR / 'db.sqlite3'),
+   }
 }
+
+
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'fscl-database',
+#        'USER': 'hmciaqzvux',
+#        'PASSWORD': 'mWMqgN5UxU5orh$m',
+#        'HOST': 'fscl-server.postgres.database.azure.com',
+#        'PORT': '5432',
+#        'OPTIONS': {
+#            'sslmode': 'require',
+#        }
+#    }
+#}
 
 # db_from_env = dj_database_url.config(conn_max_age=500)
 # DATABASES['default'].update(db_from_env)
