@@ -30,50 +30,49 @@ def upload_file(request):
     try:
         if request.method == 'POST':
             # Check file size
-            request_body_size = int(request.META.get('CONTENT_LENGTH', 0))
-            if request_body_size > settings.MAX_REQUEST_BODY_SIZE:
-                return HttpResponseBadRequest('File size exceeds maximum allowed limit.')
-
-            # Get uploaded file
-            uploaded_file = request.FILES.get('file')
-            if not uploaded_file or not uploaded_file.name:
-                messages.error(request, 'No file was uploaded.')
+            file = request.FILES.get('file')
+            if file and file.size > settings.MAX_REQUEST_BODY_SIZE:
+                messages.error(request, 'File size exceeds maximum allowed limit.')
                 return redirect('upload')
 
             # Process file
-            file_name = uploaded_file.name
-            file_type = file_name.split('.')[-1].lower()
+            if file:
+                file_name = file.name
+                file_type = file_name.split('.')[-1].lower()
 
-            # Validate file type
-            allowed_types = ['docx', 'pdf', 'csv', 'xlsx']
-            if file_type not in allowed_types:
-                messages.error(request, f'Unsupported file type. Allowed types: {", ".join(allowed_types)}')
-                return redirect('upload')
+                # Validate file type
+                allowed_types = ['docx', 'pdf', 'csv', 'xlsx']
+                if file_type not in allowed_types:
+                    messages.error(request, f'Unsupported file type. Allowed types: {", ".join(allowed_types)}')
+                    return redirect('upload')
 
-            # Create document record
-            doc = Document.objects.create(
-                file=uploaded_file,
-                name=file_name,
-                user=request.user,
-                type=file_type
-            )
+                # Create document record
+                doc = Document.objects.create(
+                    file=file,
+                    name=file_name,
+                    user=request.user,
+                    type=file_type
+                )
 
-            # Process file content based on type
-            content_loader = {
-                'docx': load_docx_file,
-                'pdf': load_pdf_file,
-                'csv': load_csv_file,
-                'xlsx': load_xlsx_file
-            }
+                # Process file content based on type
+                content_loader = {
+                    'docx': load_docx_file,
+                    'pdf': load_pdf_file,
+                    'csv': load_csv_file,
+                    'xlsx': load_xlsx_file
+                }
 
-            try:
-                content = content_loader[file_type](doc.file.path)
-                doc.content = content
-                doc.save()
-                messages.success(request, 'File uploaded and processed successfully.')
-            except Exception as e:
-                doc.delete()  # Clean up on failure
-                messages.error(request, f'Error processing file: {str(e)}')
+                try:
+                    content = content_loader[file_type](doc.file.path)
+                    doc.content = content
+                    doc.save()
+                    messages.success(request, 'File uploaded and processed successfully.')
+                except Exception as e:
+                    doc.delete()  # Clean up on failure
+                    messages.error(request, f'Error processing file: {str(e)}')
+                    return redirect('upload')
+            else:
+                messages.error(request, 'No file was uploaded.')
                 return redirect('upload')
 
         # Get user's files for display
@@ -82,7 +81,7 @@ def upload_file(request):
             'files': files,
             'max_file_size': settings.MAX_REQUEST_BODY_SIZE,
             'allowed_types': ['docx', 'pdf', 'csv', 'xlsx'],
-            'url':request.build_absolute_uri()
+            'url': request.build_absolute_uri()
         }
 
         return render(request, 'file2.html', context)

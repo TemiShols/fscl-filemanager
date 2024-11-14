@@ -8,13 +8,8 @@
                 <div class="card-body">
                     <h5 class="card-title">Upload File</h5>
                     {% include 'messages.html' %}
-                    <form id="upload-form"
-                          hx-encoding='multipart/form-data'
-                          hx-post="{% url 'upload' %}"
-                          hx-target="#file-list"
-                          hx-swap="innerHTML"
-                          hx-indicator="#spinner-container"
-                          hx-on::after-request="this.reset()">
+                    <form method="post", action="{% url 'upload' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
                         <div class="mb-3">
                             <label for="fileUpload" class="form-label">Choose File (Support for DOCS, PDF, CSV, XLSX
                                 only)</label>
