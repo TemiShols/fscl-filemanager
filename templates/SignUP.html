@@ -1,7 +1,16 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+{% load pwa %}
 
-{% block content %}
-<style>
+<head>
+    {% progressive_web_app_meta %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="shortcut icon" href="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png">
+   <link rel="manifest" href="manifest.json">
+    <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -50,45 +59,44 @@
             background-color: #45a049;
         }
     </style>
-<div class="container ">
-    <div class="card mb-5">
-        <div class="card-body">
+</head>
 
-            <div class="container">
-                <img src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png" alt="Logo"
-                     class="logo">
-                <h2>Signup</h2>
-                <form action="{% url 'register' %}" method="post">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="text" placeholder="Company Name" name="company_name" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" placeholder="First Name" name="first_name" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" placeholder="Lat Name" name="last_name" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="tel" placeholder="Company Telephone" name="office_telephone" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="tel" placeholder="Personal Telephone" name="personal_telephone" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" placeholder="Address" name="address" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="email" placeholder="Email" name="email" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" placeholder="Password" name="password1" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" placeholder="Confirm Password" name="password2" required>
-                    </div>
-                    <button type="submit" class="btn long mr-20">Register</button>
-                </form>
-            </div>
+<body>
+    <div class="container">
+        <img src="https://fusionscl.com/wp-content/uploads/2020/04/cropped-Crop-FCSL-51-2.png" alt="Logo" class="logo">
+        <h2>Signup</h2>
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+            <input type="text" placeholder="Company Name" name="company_name" required>
         </div>
-        {% endblock %}
+            <div class="input-group">
+            <input type="text" placeholder="First Name" name="first_name" required>
+        </div>
+            <div class="input-group">
+            <input type="text" placeholder="Lat Name" name="last_name" required>
+        </div>
+		<div class="input-group">
+            <input type="tel" placeholder="Company Telephone" name="office_telephone" required>
+        </div>
+        <div class="input-group">
+            <input type="tel" placeholder="Personal Telephone"  name="personal_telephone" required>
+        </div>
+        <div class="input-group">
+            <input type="text" placeholder="Address" name="address" required>
+        </div>
+        <div class="input-group">
+            <input type="email" placeholder="Email" name="email" required>
+        </div>
+        <div class="input-group">
+            <input type="password" placeholder="Password" name="password1" required>
+        </div>
+		<div class="input-group">
+            <input type="password" placeholder="Confirm Password"  name="password2" required>
+        </div>
+        <button type="submit" class="btn long mr-20">Register</button>
+        </form>
+    </div>
+</body>
+
+</html>
