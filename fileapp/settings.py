@@ -114,11 +114,11 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': '127.0.0.1',
-        'NAME': 'fileapp',
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASS'),
-        'PORT': 5432,
+        'NAME': 'fscl-database',
+        'USER': 'hmciaqzvux',
+        'PASSWORD': 'mWMqgN5UxU5orh$m',
+        'HOST': 'fscl-server.postgres.database.azure.com',
+        'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
         }
