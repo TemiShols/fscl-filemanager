@@ -115,7 +115,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'HOST': 'fileapp_db',
-        'NAME': os.getenv('DB_NAME'),
+        'NAME': 'fileapp',
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASS'),
         'PORT': 5432,
