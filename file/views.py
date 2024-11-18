@@ -5,7 +5,7 @@ import json, os
 from django.contrib import messages
 from authentication.models import CustomUser
 from .utils import load_pdf_file, load_docx_file, load_sitemap_file, load_youtube_file, text_to_speech, \
-    extract_and_save_content, generate_sitemap, loads_urls, load_csv_file, load_xlsx_file
+    extract_and_save_content, generate_sitemap, loads_urls, load_csv_file, load_xlsx_file, get_youtube
 from .langchain_mistral import process_langchain_rag, process_langchain_rag_project
 from .tasks import send_simple_download_message, send_simple_share_message
 from django.utils.text import get_valid_filename
@@ -95,48 +95,39 @@ def create_project(request):
     return render(request, 'create_project.html', {})
 
 
-def new_project(request):  # should navigate to where to input the sitemap.xml generated to desktop then navigate to
-    # projects
+def new_project(request):
     if request.method == 'POST':
         data_type = request.POST.get('data_type')
         project_name = request.POST.get('name')
-        url = request.POST.get('url_input')
 
         try:
             if data_type == 'sitemap':
-                content = load_sitemap_file(url)
+                content = load_sitemap_file(data_type)
                 Project.objects.create(name=project_name, user=request.user, is_sitemap=True, content=content,
-                                       scope=url)
+                                       scope='sitemap')
             elif data_type == 'url':
-                url_list = url.split(';')
+                url_list = data_type.split(';')
                 content = loads_urls(url_list)
                 if content:
                     Project.objects.create(name=project_name, user=request.user, is_url=True, content=content,
-                                           scope=url)
+                                           scope='url')
                 else:
                     messages.error(request, 'Failed to fetch content from the URL.')
             elif data_type == 'youtube':
-                content = load_youtube_file(url)
+                content = get_youtube(data_type)
                 Project.objects.create(name=project_name, user=request.user, is_youtube=True, content=content,
-                                       scope=url)
+                                       scope='youtube')
 
             projects = Project.objects.filter(user=request.user).order_by('-uploaded_at')
 
-            if request.headers.get('HX-Request'):
-                return render(request, 'my_project_partial.html', {'projects': projects})
-            else:
-                messages.success(request, 'Project created successfully')
-                context = {'projects': projects}
-                return render(request, 'new_project.html', context)
+            messages.success(request, 'Project created successfully')
+            context = {'projects': projects}
+            return render(request, 'my_projects.html', context)
         except Exception as e:
             messages.error(request, f'Error creating project: {e}')
-            projects = Project.objects.filter(user=request.user).order_by('-uploaded_at')
-            context = {'projects': projects}
-            return render(request, 'new_project.html', context)
-
     projects = Project.objects.filter(user=request.user).order_by('-uploaded_at')
     context = {"projects": projects}
-    return render(request, 'new_project.html', context)
+    return render(request, 'my_projects.html', context)
 
 
 @login_required()
@@ -179,6 +170,15 @@ def filter_documents(request):
             files
     }
     return render(request, 'my_files.html', context)
+
+
+@login_required()
+def my_documents(request):
+    docs = Document.objects.filter(user=request.user)
+    context = {
+        'docs': docs
+    }
+    return render(request, 'my_documents.html', context)
 
 
 @login_required()

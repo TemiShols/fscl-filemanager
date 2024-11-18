@@ -17,6 +17,7 @@ from gtts import gTTS
 import os
 from .models import Project
 import openpyxl
+import re
 
 
 def load_docx_file(file_path):
@@ -92,6 +93,57 @@ def load_youtube_file(url):
         return "The video is unavailable."
     except Exception as e:
         return f"An unexpected error occurred: {str(e)}"
+
+
+def get_youtube_id(url):
+
+    # Make sure URL is not empty
+    if not url:
+        return "URL cannot be empty"
+
+    # Remove any extra spaces from start or end
+    url = url.strip()
+
+    try:
+        # Handle standard YouTube URL (youtube.com/watch?v=...)
+        if 'youtube.com/watch?v=' in url:
+            # Split URL at 'v=' and take the second part
+            # Example: 'youtube.com/watch?v=abc123' -> ['youtube.com/watch?', 'abc123']
+            parts = url.split('v=')
+            if len(parts) < 2:
+                return "Invalid YouTube URL format"
+
+            # Take the video ID and remove any extra parameters
+            # Example: 'abc123&t=10' -> 'abc123'
+            video_id = parts[1].split('&')[0]
+            return video_id
+
+        # Handle short YouTube URL (youtu.be/...)
+        elif 'youtu.be/' in url:
+            # Split URL at 'youtu.be/' and take the second part
+            # Example: 'youtu.be/abc123' -> ['youtu.be/', 'abc123']
+            parts = url.split('youtu.be/')
+            if len(parts) < 2:
+                return "Invalid YouTube URL format"
+
+            # Take the video ID and remove any extra parameters
+            # Example: 'abc123?t=10' -> 'abc123'
+            video_id = parts[1].split('?')[0]
+            return video_id
+
+        else:
+            return "Not a valid YouTube URL"
+
+    except Exception as e:
+        return f"Error processing URL: {str(e)}"
+
+
+# Example usage and testing
+def get_youtube(url):
+    result = get_youtube_id(url)
+    return result
+
+
 
 
 def load_multiple_url(urls):

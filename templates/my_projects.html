@@ -8,7 +8,7 @@
                 {% include 'messages.html' %}
                 <form id="project-form"
                       method="POST"
-                      action="{% url 'new_project' %}">
+                      action="{% url 'projects' %}">
                     {% csrf_token %}
                     <div class="radio-container">
                         <div class="form-check form-check-inline">
@@ -24,13 +24,9 @@
                             <label class="form-check-label" for="youtube">YouTube</label>
                         </div>
                     </div>
-                    <div class="mb-3" id="url-container">
-                        <label for="url" class="form-label">URL</label>
-                        <input type="text" class="form-control" id="urlInput" name="url_input"
-                               placeholder="E.g. https://getbootstrap.com/sitemap.xml">
-                    </div>
+
                     <div class="mb-3">
-                        <label for="projectName" class="form-label">Project Name</label>
+                        <label for="projectName" class="form-label">Input Scope</label>
                         <input type="text" class="form-control" id="projectName" name="name" required>
                     </div>
 
