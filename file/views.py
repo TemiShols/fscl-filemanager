@@ -5,7 +5,7 @@ import json, os
 from django.contrib import messages
 from authentication.models import CustomUser
 from .utils import load_pdf_file, load_docx_file, load_sitemap_file, load_youtube_file, text_to_speech, \
-    extract_and_save_content, generate_sitemap, loads_urls, load_csv_file, load_xlsx_file, get_youtube
+    extract_and_save_content, generate_sitemap, loads_urls, load_csv_file, load_xlsx_file
 from .langchain_mistral import process_langchain_rag, process_langchain_rag_project
 from .tasks import send_simple_download_message, send_simple_share_message
 from django.utils.text import get_valid_filename
@@ -108,13 +108,14 @@ def new_project(request):
             elif data_type == 'url':
                 url_list = data_type.split(';')
                 content = loads_urls(url_list)
+                print(content)
                 if content:
                     Project.objects.create(name=project_name, user=request.user, is_url=True, content=content,
                                            scope='url')
                 else:
                     messages.error(request, 'Failed to fetch content from the URL.')
             elif data_type == 'youtube':
-                content = get_youtube(data_type)
+                content = load_youtube_file(data_type)
                 Project.objects.create(name=project_name, user=request.user, is_youtube=True, content=content,
                                        scope='youtube')
 

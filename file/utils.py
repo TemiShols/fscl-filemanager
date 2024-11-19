@@ -72,19 +72,49 @@ def load_sitemap_file(sitemap_url):
 
 
 def load_youtube_file(url):
+
     try:
-        if 'v=' in url:
+        # Handle empty or non-string input
+        if not url or not isinstance(url, str):
+            return "URL cannot be empty or must be a string."
+
+        # Clean the URL
+        url = url.strip()
+
+        # Extract video ID using various URL formats
+        video_id = None
+
+        if 'watch?v=' in url:
+            # Handle standard youtube.com/watch?v= format
+            video_id = url.split('watch?v=')[-1].split('&')[0]
+        elif 'v=' in url:
+            # Handle other URLs containing v= parameter
             video_id = url.split('v=')[-1].split('&')[0]
         elif 'youtu.be/' in url:
+            # Handle shortened youtu.be/ format
             video_id = url.split('youtu.be/')[-1].split('?')[0]
         else:
-            return "Invalid YouTube URL."
+            return "Invalid YouTube URL format."
+
+        # Validate video ID
+        if not video_id or len(video_id.strip()) != 11:
+            return "Invalid YouTube video ID."
 
         # Fetch the transcript
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        full_text = " ".join([item['text'] for item in transcript])
-        return full_text
 
+        # Validate transcript
+        if not transcript:
+            return "No transcript content available."
+
+        # Process transcript into text
+        full_text = " ".join([item['text'] for item in transcript])
+
+        # Validate processed text
+        if not full_text.strip():
+            return "Transcript is empty."
+
+        return full_text
     except TranscriptsDisabled:
         return "Transcripts are disabled for this video."
     except NoTranscriptFound:
@@ -93,57 +123,6 @@ def load_youtube_file(url):
         return "The video is unavailable."
     except Exception as e:
         return f"An unexpected error occurred: {str(e)}"
-
-
-def get_youtube_id(url):
-
-    # Make sure URL is not empty
-    if not url:
-        return "URL cannot be empty"
-
-    # Remove any extra spaces from start or end
-    url = url.strip()
-
-    try:
-        # Handle standard YouTube URL (youtube.com/watch?v=...)
-        if 'youtube.com/watch?v=' in url:
-            # Split URL at 'v=' and take the second part
-            # Example: 'youtube.com/watch?v=abc123' -> ['youtube.com/watch?', 'abc123']
-            parts = url.split('v=')
-            if len(parts) < 2:
-                return "Invalid YouTube URL format"
-
-            # Take the video ID and remove any extra parameters
-            # Example: 'abc123&t=10' -> 'abc123'
-            video_id = parts[1].split('&')[0]
-            return video_id
-
-        # Handle short YouTube URL (youtu.be/...)
-        elif 'youtu.be/' in url:
-            # Split URL at 'youtu.be/' and take the second part
-            # Example: 'youtu.be/abc123' -> ['youtu.be/', 'abc123']
-            parts = url.split('youtu.be/')
-            if len(parts) < 2:
-                return "Invalid YouTube URL format"
-
-            # Take the video ID and remove any extra parameters
-            # Example: 'abc123?t=10' -> 'abc123'
-            video_id = parts[1].split('?')[0]
-            return video_id
-
-        else:
-            return "Not a valid YouTube URL"
-
-    except Exception as e:
-        return f"Error processing URL: {str(e)}"
-
-
-# Example usage and testing
-def get_youtube(url):
-    result = get_youtube_id(url)
-    return result
-
-
 
 
 def load_multiple_url(urls):
