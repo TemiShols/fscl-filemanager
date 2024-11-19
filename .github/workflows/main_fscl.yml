@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'fscl'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D23F2FC395FD443896C911687D2AFD18 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_43B5B0B72629442496BAE94C1AE4F3A7 }}
