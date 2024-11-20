@@ -7,7 +7,6 @@ from authentication.models import CustomUser
 from .utils import load_pdf_file, load_docx_file, load_sitemap_file, load_youtube_file, text_to_speech, \
     extract_and_save_content, generate_sitemap, loads_urls, load_csv_file, load_xlsx_file
 from .langchain_mistral import process_langchain_rag, process_langchain_rag_project
-from .tasks import send_simple_download_message, send_simple_share_message
 from django.utils.text import get_valid_filename
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -215,8 +214,8 @@ def share_file(request, pk):
 
         recipient_email = request.POST.get('recipient_email')
         if recipient_email:
-            task = send_simple_share_message.delay(request.user.pk, recipient_email, context_json)
-            print(task.status)
+            # task = send_simple_share_message.delay(request.user.pk, recipient_email, context_json)
+            # print(task.status)
             return JsonResponse({'success': True, 'message': 'File shared successfully'})
         else:
             return JsonResponse({'success': False, 'message': 'Recipient email is required'})
