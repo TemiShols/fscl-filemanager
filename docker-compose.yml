@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis_container1
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  fileapp_db:
+    image: postgres:13
+    container_name: fileapp_db_container
+    environment:
+      POSTGRES_DB: 'db_fileapp'
+      POSTGRES_USER: 'welzatm'
+      POSTGRES_PASSWORD: 'Mayflower48'
+    volumes:
+      - fileapp_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # If you change this, update DATABASE_URL in other services.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U welzatm -d db_fileapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fileapp:
+    build: .
+    container_name: fileapp_container
+    environment:
+      - DJANGO_SETTINGS_MODULE=fileapp.settings
+      - DATABASE_URL=postgres://welzatm:Mayflower48@fileapp_db_container:5433/db_fileapp  # Updated to 5433
+      - REDIS_URL=redis://redis_container1:6379
+    volumes:
+      - .:/app  # Ensure your host app directory has correct permissions
+    depends_on:
+      redis:
+        condition: service_healthy
+      fileapp_db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+  celery_worker:
+    build: .
+    container_name: celery_worker_container
+    command: celery -A fileapp worker --pool=solo -l info
+    environment:
+      - DJANGO_SETTINGS_MODULE=fileapp.settings
+      - DATABASE_URL=postgres://welzatm:Mayflower48@fileapp_db_container:5433/db_fileapp  # Updated to 5433
+      - REDIS_URL=redis://redis_container1:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+      fileapp_db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    restart: always
+
+  ngrok:
+    image: wernight/ngrok
+    container_name: ngrok_container
+    environment:
+      NGROK_AUTH: 2mnGbSNtnWZTXMfEIRFBOlakQ3Y_3PYVvYmrwZzHEhUAkD3J7
+      NGROK_REGION: us
+    ports:
+      - "4040:4040"  # Ngrok web interface
+    depends_on:
+      - fileapp
+    command: ngrok http fileapp:8001  # Updated to 8001 to match fileapp port
+
+volumes:
+  fileapp_data:
